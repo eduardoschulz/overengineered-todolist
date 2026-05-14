@@ -1,0 +1,24 @@
+name: CI/CD Pipeline
+
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - '**.py'
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+            - uses: actions/checkout@v4
+            - name: Python Linter
+              uses: sunnysid3up/python-linter@master
+              with:
+                source: "."
+                #mypy-options: "--ignore-missing-imports --show-error-codes"
+                ##pylint-options: "--rcfile=setup.cfg"
+                #isort-options: "-w 100"
+                #django: true
