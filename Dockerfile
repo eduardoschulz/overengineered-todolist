@@ -2,7 +2,7 @@ FROM python:3.14-slim-trixie AS builder
 
 WORKDIR /app
 
-#COPY requirements.txt .
+  #COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 
