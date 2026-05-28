@@ -26,10 +26,10 @@ jobs:
         run: pip install black isort
 
       - name: Format Check (black)
-        run: black --check
+        run: black --check /app
 
       - name: Format Check (isort)
-        run: isort --check
+        run: isort --check /app
 
   test:
     runs-on: ubuntu-latest
