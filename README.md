@@ -2,7 +2,7 @@
 An overengineered todo list
 
 
-# Development Guide
+ # Development Guide
 ## Creating your dev environment
 ```bash
 python3 -m venv .venv
