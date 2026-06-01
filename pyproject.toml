@@ -18,9 +18,16 @@ dependencies = [
     "python-dotenv",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["app/tests"] 
+pythonpath = ["app"]
+
 [project.optional-dependencies]
 dev = [
     "pytest",
     "pytest-asyncio",
     "httpx",
+    "black",
+    "isort",
 ]
+
