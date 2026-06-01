@@ -11,3 +11,7 @@ async def root():
 @app.get("/health", status_code=200)
 async def health():
     return {"status": "ok"}
+
+# @app.get("/users/")
+# def read_users(db: Session = Depends(get_db)):
+#     return db.query(User).all()

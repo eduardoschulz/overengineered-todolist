@@ -20,6 +20,7 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["app/tests"] 
+pythonpath = ["app"]
 
 [project.optional-dependencies]
 dev = [
