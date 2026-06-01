@@ -28,5 +28,6 @@ dev = [
     "pytest-asyncio",
     "httpx",
     "black",
+    "isort",
 ]
 
