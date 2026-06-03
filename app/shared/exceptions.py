@@ -1,4 +1,6 @@
 class AppError:
+    def __init__(self):
+        return self
 
 
 class NotFoundError(AppError):
