@@ -15,14 +15,14 @@ class User:
 
     def deactivate(self):
         self.is_active = False
-    
+
     def activate(self):
         """Reverse method for deactivate"""
         self.is_active = True
 
     def change_email(self, new_email: EmailAddress):
         self.email = new_email
-    
+
     def change_password(self, new_hashed_password: HashedPassword):
         self.hashed_password = new_hashed_password
 

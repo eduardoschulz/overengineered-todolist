@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+
+from modules.auth.domain.entities import User
 
 from modules.auth.domain.entities import User
 
@@ -11,11 +12,11 @@ class UserRepositoryPort(ABC):
         pass
 
     @abstractmethod
-    def find_by_email(self, email: str) -> Optional[User]:
+    def find_by_email(self, email: str) -> User | None:
         pass
 
     @abstractmethod
-    def find_by_id(self, user_id: str) -> Optional[User]:
+    def find_by_id(self, user_id: str) -> User | None:
         pass
 
 
