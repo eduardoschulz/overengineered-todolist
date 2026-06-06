@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from modules.auth.domain.entities import User
+
 
 class UserRepositoryPort(ABC):
 

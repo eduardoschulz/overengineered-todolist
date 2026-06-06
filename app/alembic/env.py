@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+from modules.auth.infrastructure.orm_models import UserORM
 from shared.base_model import Base
 from sqlalchemy import engine_from_config, pool
 
