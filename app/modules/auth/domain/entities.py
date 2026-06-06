@@ -13,7 +13,18 @@ class User:
     is_active: bool
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
-    def disable_user(self):
+    def deactivate(self):
         self.is_active = False
+    
+    def activate(self):
+        """Reverse method for deactivate"""
+        self.is_active = True
 
+    def change_email(self, new_email: EmailAddress):
+        self.email = new_email
+    
+    def change_password(self, new_hashed_password: HashedPassword):
+        self.hashed_password = new_hashed_password
 
+    def __repr__(self):
+        return f"User(id={self.id!r}, email={self.email!r}, is_active={self.is_active!r})"
