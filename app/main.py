@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from modules.auth.interface.router import router as auth_router
 from shared.exceptions import AppError
 
 app = FastAPI()
@@ -22,6 +23,9 @@ def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         status_code=exc.status_code,
         content={"detail": str(exc)},
     )
+
+
+app.include_router(auth_router)
 
 
 # @app.get("/users/")
