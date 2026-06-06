@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from .value_objects import EmailAddress, HashedPassword
 
 
-@dataclass()
+@dataclass(kw_only=True)
 class User:
     id: uuid.UUID = field(default_factory=uuid.uuid4)
     email: EmailAddress
