@@ -2,11 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from modules.auth.application.use_cases import LoginUseCase, RegisterUserUseCase
-from modules.auth.domain.exceptions import EmailAlreadyExistsError, InvalidCredentialsError
+from modules.auth.domain.exceptions import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+)
 from modules.auth.infrastructure.bcrypt_hasher import BcryptPasswordHasher
 from modules.auth.infrastructure.jwt_provider import PyJWTTokenProvider
 from modules.auth.infrastructure.repositories import SQLAlchemyUserRepository
-from modules.auth.interface.schemas import LoginRequest, RegisterRequest, TokenResponse, UserResponse
+from modules.auth.interface.schemas import (
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UserResponse,
+)
 from shared.database import get_db
 
 router = APIRouter(prefix="/auth", tags=["auth"])

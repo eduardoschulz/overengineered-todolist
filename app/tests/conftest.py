@@ -10,7 +10,9 @@ from shared.database import get_db
 
 TEST_DATABASE_URL = "sqlite:///./test.db"
 
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+test_engine = create_engine(
+    TEST_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 TestSession = sessionmaker(test_engine)
 
 
