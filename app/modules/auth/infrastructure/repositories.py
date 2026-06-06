@@ -9,7 +9,6 @@ from modules.auth.infrastructure.orm_models import UserORM
 
 
 class SQLAlchemyUserRepository(UserRepositoryPort):
-
     def __init__(self, session: Session) -> None:
         self.session = session
 

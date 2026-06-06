@@ -4,3 +4,11 @@ class InvalidTokenError(Exception):
 
 class TokenExpiredError(InvalidTokenError):
     pass
+
+
+class EmailAlreadyExistsError(Exception):
+    pass
+
+
+class InvalidCredentialsError(Exception):
+    pass
