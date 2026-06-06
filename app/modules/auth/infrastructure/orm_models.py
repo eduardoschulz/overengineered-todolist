@@ -12,7 +12,9 @@ class UserORM(Base):
     # Pertence exclusivamente à camada de infraestrutura.
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)  # UUID armazenado como string
+    id: Mapped[str] = mapped_column(
+        String, primary_key=True
+    )  # UUID armazenado como string
     email: Mapped[str] = mapped_column(String, unique=True)  # email único do usuário
     hashed_password: Mapped[str] = mapped_column(String)  # hash bcrypt da senha
     is_active: Mapped[bool] = mapped_column(Boolean)  # se o usuário está ativo

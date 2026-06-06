@@ -27,4 +27,6 @@ class User:
         self.hashed_password = new_hashed_password
 
     def __repr__(self):
-        return f"User(id={self.id!r}, email={self.email!r}, is_active={self.is_active!r})"
+        return (
+            f"User(id={self.id!r}, email={self.email!r}, is_active={self.is_active!r})"
+        )

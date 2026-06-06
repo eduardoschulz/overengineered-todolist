@@ -2,11 +2,8 @@ from abc import ABC, abstractmethod
 
 from modules.auth.domain.entities import User
 
-from modules.auth.domain.entities import User
-
 
 class UserRepositoryPort(ABC):
-
     @abstractmethod
     def save(self, user: User) -> User:
         pass
@@ -21,7 +18,6 @@ class UserRepositoryPort(ABC):
 
 
 class PasswordHasher(ABC):
-
     @abstractmethod
     def hash(self, plain_password: str) -> str:
         pass
@@ -32,7 +28,6 @@ class PasswordHasher(ABC):
 
 
 class TokenProvider(ABC):
-
     @abstractmethod
     def generate(self, payload: dict) -> str:
         pass
