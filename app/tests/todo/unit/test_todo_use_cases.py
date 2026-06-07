@@ -1,4 +1,3 @@
-import uuid
 from typing import Optional
 
 import pytest
@@ -13,7 +12,6 @@ from modules.todo.application.use_cases import (
 from modules.todo.domain.entities import TodoList
 from modules.todo.domain.exceptions import AccessDeniedError
 from modules.todo.domain.ports import TodoListRepositoryPort
-from modules.todo.domain.value_objects import ListName
 
 
 class InMemoryTodoRepo(TodoListRepositoryPort):
@@ -81,9 +79,7 @@ class TestAddTodoItemUseCase:
 
         add_uc = AddTodoItemUseCase(repo=repo)
         with pytest.raises(AccessDeniedError):
-            add_uc.execute(
-                list_id=str(todo_list.id), title="Buy milk", user_id="user2"
-            )
+            add_uc.execute(list_id=str(todo_list.id), title="Buy milk", user_id="user2")
 
 
 class TestCompleteTodoItemUseCase:

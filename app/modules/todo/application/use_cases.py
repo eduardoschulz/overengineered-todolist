@@ -1,7 +1,7 @@
 import uuid
 
 from modules.todo.domain.entities import TodoList
-from modules.todo.domain.exceptions import AccessDeniedError, TodoListNotFoundError
+from modules.todo.domain.exceptions import TodoListNotFoundError
 from modules.todo.domain.ports import TodoListRepositoryPort
 from modules.todo.domain.value_objects import ListName
 
