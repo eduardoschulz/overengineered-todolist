@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from modules.todo.domain.entities import TodoItem, TodoList
+from modules.todo.domain.entities import TodoList
 from modules.todo.domain.exceptions import (
     AccessDeniedError,
     AlreadyCompletedError,
