@@ -47,6 +47,8 @@ class TodoList:
         raise TodoItemNotFoundError(str(item_id))
 
     def add_item(self, title: str) -> TodoItem:
+        if not title.strip():
+            raise EmptyTitleError()
         item = TodoItem(title=title)
         self.items.append(item)
         return item
