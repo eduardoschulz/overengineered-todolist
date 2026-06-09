@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from main import app
 from modules.auth.infrastructure.orm_models import UserORM  # noqa: F401
+from modules.todo.infrastructure.orm_models import TodoItemORM, TodoListORM  # noqa: F401
 from shared.base_model import Base
 from shared.database import get_db
 
