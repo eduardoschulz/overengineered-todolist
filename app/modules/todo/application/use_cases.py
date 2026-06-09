@@ -7,6 +7,8 @@ from modules.todo.domain.value_objects import ListName
 
 
 class CreateTodoListUseCase:
+    """cria uma nova lista de tarefas para um usuario."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
@@ -16,6 +18,8 @@ class CreateTodoListUseCase:
 
 
 class GetUserTodoListsUseCase:
+    """retorna todas as listas de tarefas de um usuario."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
@@ -24,6 +28,8 @@ class GetUserTodoListsUseCase:
 
 
 class AddTodoItemUseCase:
+    """adiciona um item a uma lista de tarefas existente."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
@@ -41,6 +47,8 @@ class AddTodoItemUseCase:
 
 
 class CompleteTodoItemUseCase:
+    """marca um item como concluido."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
@@ -58,6 +66,8 @@ class CompleteTodoItemUseCase:
 
 
 class ReopenTodoItemUseCase:
+    """reabre um item que estava concluido."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
@@ -75,6 +85,8 @@ class ReopenTodoItemUseCase:
 
 
 class RenameItemUseCase:
+    """renomeia o titulo de um item da lista."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
@@ -94,6 +106,8 @@ class RenameItemUseCase:
 
 
 class DeleteTodoListUseCase:
+    """remove uma lista de tarefas."""
+
     def __init__(self, repo: TodoListRepositoryPort) -> None:
         self._repo = repo
 
