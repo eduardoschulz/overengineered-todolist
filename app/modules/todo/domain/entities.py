@@ -1,5 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 
 from .exceptions import (
     AccessDeniedError,
@@ -16,6 +17,7 @@ class TodoItem:
     title: str
     completed: bool = False
     id: uuid.UUID = field(default_factory=uuid.uuid4)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def complete(self):
         if self.completed:
@@ -39,6 +41,7 @@ class TodoList:
     owner_id: str
     id: uuid.UUID = field(default_factory=uuid.uuid4)
     items: list[TodoItem] = field(default_factory=list)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def _get_item(self, item_id: uuid.UUID) -> TodoItem:
         for item in self.items:

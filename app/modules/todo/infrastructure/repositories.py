@@ -29,6 +29,7 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
             id=uuid.UUID(orm.id),
             title=orm.title,
             completed=orm.is_completed,
+            created_at=orm.created_at,
         )
 
     # converte uma TodoList de dominio para o modelo ORM
@@ -37,6 +38,7 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
             id=str(todo_list.id),
             owner_id=todo_list.owner_id,
             name=todo_list.name.value,
+            created_at=todo_list.created_at,
         )
 
     # converte um modelo ORM para uma TodoList de dominio
@@ -47,6 +49,7 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
             name=ListName(orm.name),
             owner_id=orm.owner_id,
             items=items,
+            created_at=orm.created_at,
         )
 
     # salva ou atualiza uma lista de tarefas no banco de dados
