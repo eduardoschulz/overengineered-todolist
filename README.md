@@ -11,6 +11,11 @@ docker compose up -d --build
 ```
 A API fica em `http://localhost:8000`. PostgreSQL na porta `5432`.
 
+Imagem disponível no GitHub Packages:
+```bash
+docker pull ghcr.io/eduardoschulz/overengineered-todolist:latest
+```
+
 ### Resetar o banco
 ```bash
 docker compose down -v && docker compose up -d --build
