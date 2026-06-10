@@ -3,16 +3,12 @@ info:
   type: http
   seq: 4
 
-vars:
-  token: ''
-  user_id: ''
-
 http:
   method: DELETE
-  url: http://localhost:8000/users/{{user_id}}
+  url: http://localhost:8000/users/PASTE_USER_ID
   headers:
     - key: Authorization
-      value: Bearer {{token}}
+      value: Bearer PASTE_TOKEN
 
 settings:
   encodeUrl: true

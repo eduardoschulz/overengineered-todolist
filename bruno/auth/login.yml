@@ -9,16 +9,7 @@ http:
   headers:
     - key: Content-Type
       value: application/json
-  body: |
-    {
-      "email": "bruno@test.com",
-      "password": "secret123"
-    }
-
-script:
-  - type: post-response
-    content: |
-      bru.setEnvVar("token", JSON.parse(res.getBody()).access_token);
+  body: '{"email":"bruno@test.com","password":"secret123"}'
 
 settings:
   encodeUrl: true

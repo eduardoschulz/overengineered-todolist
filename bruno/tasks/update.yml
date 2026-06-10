@@ -3,23 +3,15 @@ info:
   type: http
   seq: 4
 
-vars:
-  token: ''
-  task_id: ''
-
 http:
   method: PUT
-  url: http://localhost:8000/tasks/{{task_id}}
+  url: http://localhost:8000/tasks/PASTE_TASK_ID
   headers:
     - key: Content-Type
       value: application/json
     - key: Authorization
-      value: Bearer {{token}}
-  body: |
-    {
-      "title": "Review PR #42 (updated)",
-      "status": "done"
-    }
+      value: Bearer PASTE_TOKEN
+  body: '{"title":"Review PR #42 (updated)","status":"done"}'
 
 settings:
   encodeUrl: true
