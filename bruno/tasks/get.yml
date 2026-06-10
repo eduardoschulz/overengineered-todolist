@@ -1,0 +1,20 @@
+info:
+  name: Get Task
+  type: http
+  seq: 2
+
+vars:
+  token: ''
+  task_id: ''
+
+http:
+  method: GET
+  url: http://localhost:8000/tasks/{{task_id}}
+  headers:
+    - key: Authorization
+      value: Bearer {{token}}
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

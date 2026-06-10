@@ -1,0 +1,26 @@
+info:
+  name: Login
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8000/auth/login
+  headers:
+    - key: Content-Type
+      value: application/json
+  body: |
+    {
+      "email": "bruno@test.com",
+      "password": "secret123"
+    }
+
+script:
+  - type: post-response
+    content: |
+      bru.setEnvVar("token", JSON.parse(res.getBody()).access_token);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

@@ -1,0 +1,26 @@
+info:
+  name: Register
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8000/auth/register
+  headers:
+    - key: Content-Type
+      value: application/json
+  body: |
+    {
+      "email": "bruno@test.com",
+      "password": "secret123"
+    }
+
+script:
+  - type: post-response
+    content: |
+      bru.setEnvVar("user_id", JSON.parse(res.getBody()).id);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

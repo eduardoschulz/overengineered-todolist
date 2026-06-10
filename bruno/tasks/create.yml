@@ -1,0 +1,33 @@
+info:
+  name: Create Task
+  type: http
+  seq: 1
+
+vars:
+  token: ''
+
+http:
+  method: POST
+  url: http://localhost:8000/tasks/
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer {{token}}
+  body: |
+    {
+      "title": "Review PR #42",
+      "description": "Check auth middleware",
+      "status": "in_progress",
+      "assigned_to": "dev@test.com"
+    }
+
+script:
+  - type: post-response
+    content: |
+      bru.setEnvVar("task_id", JSON.parse(res.getBody()).id);
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

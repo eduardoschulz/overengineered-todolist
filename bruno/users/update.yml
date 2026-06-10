@@ -1,0 +1,26 @@
+info:
+  name: Update User
+  type: http
+  seq: 3
+
+vars:
+  token: ''
+  user_id: ''
+
+http:
+  method: PUT
+  url: http://localhost:8000/users/{{user_id}}
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Authorization
+      value: Bearer {{token}}
+  body: |
+    {
+      "email": "updated@test.com"
+    }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

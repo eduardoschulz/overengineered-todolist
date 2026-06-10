@@ -1,0 +1,19 @@
+info:
+  name: List Tasks
+  type: http
+  seq: 3
+
+vars:
+  token: ''
+
+http:
+  method: GET
+  url: http://localhost:8000/tasks/?assignedTo=dev@test.com
+  headers:
+    - key: Authorization
+      value: Bearer {{token}}
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

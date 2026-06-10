@@ -1,0 +1,20 @@
+info:
+  name: Delete Task
+  type: http
+  seq: 5
+
+vars:
+  token: ''
+  task_id: ''
+
+http:
+  method: DELETE
+  url: http://localhost:8000/tasks/{{task_id}}
+  headers:
+    - key: Authorization
+      value: Bearer {{token}}
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true

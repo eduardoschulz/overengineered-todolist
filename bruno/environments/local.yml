@@ -1,0 +1,21 @@
+info:
+  name: local
+  type: environment
+
+variables:
+  - key: base_url
+    value: http://localhost:8000
+    enabled: true
+    type: text
+  - key: token
+    value: ""
+    enabled: true
+    type: text
+  - key: user_id
+    value: ""
+    enabled: true
+    type: text
+  - key: task_id
+    value: ""
+    enabled: true
+    type: text
