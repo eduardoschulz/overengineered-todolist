@@ -1,20 +1,22 @@
-FROM python:3.14-slim-trixie AS builder
+FROM python:3.14-slim AS builder
 
 WORKDIR /app
 
-  #COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+COPY pyproject.toml .
 
+RUN pip install --no-cache-dir --user . \
+ && pip install --no-cache-dir --user "uvicorn[standard]" psycopg2-binary
 
-FROM python:3.14-slim-trixie
+FROM python:3.14-slim
 
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/root/.local/bin:$PATH \
+    DATABASE_URL=sqlite:///./todo_app.db
+
 WORKDIR /app
 
 COPY --from=builder /root/.local /root/.local
+COPY app/ .
 
-COPY . .
+EXPOSE 8000
 
-USER 1000
-
-CMD ["python", "test.py"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]

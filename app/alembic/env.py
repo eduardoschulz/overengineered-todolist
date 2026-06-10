@@ -6,6 +6,7 @@ from alembic import context
 from modules.auth.infrastructure.orm_models import UserORM  # noqa: F401
 from modules.todo.infrastructure.orm_models import TodoItemORM, TodoListORM  # noqa: F401
 from shared.base_model import Base
+from shared.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,6 +22,9 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
+# Override sqlalchemy.url from alembic.ini with env-based DATABASE_URL
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
