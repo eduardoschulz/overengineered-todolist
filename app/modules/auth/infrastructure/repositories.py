@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from sqlalchemy.orm import Session
@@ -6,6 +7,8 @@ from modules.auth.domain.entities import User
 from modules.auth.domain.ports import UserRepositoryPort
 from modules.auth.domain.value_objects import EmailAddress, HashedPassword
 from modules.auth.infrastructure.orm_models import UserORM
+
+logger = logging.getLogger(__name__)
 
 
 class SQLAlchemyUserRepository(UserRepositoryPort):
@@ -34,10 +37,15 @@ class SQLAlchemyUserRepository(UserRepositoryPort):
 
     # Persiste o usuário no banco de dados (insert ou update)
     def save(self, user: User) -> User:
-        orm = self._to_orm(user)
-        self.session.merge(orm)
-        self.session.commit()
-        return self._to_domain(orm)
+        try:
+            orm = self._to_orm(user)
+            self.session.merge(orm)
+            self.session.commit()
+            return self._to_domain(orm)
+        except Exception:
+            logger.error("failed to save user %s", str(user.id), exc_info=True)
+            self.session.rollback()
+            raise
 
     # Busca um usuário pelo endereço de email
     def find_by_email(self, email: str) -> User | None:

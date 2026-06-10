@@ -1,3 +1,5 @@
+import logging
+
 from modules.auth.domain.entities import User
 from modules.auth.domain.exceptions import (
     EmailAlreadyExistsError,
@@ -6,6 +8,8 @@ from modules.auth.domain.exceptions import (
 )
 from modules.auth.domain.ports import PasswordHasher, TokenProvider, UserRepositoryPort
 from modules.auth.domain.value_objects import EmailAddress, HashedPassword
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterUserUseCase:
@@ -27,7 +31,9 @@ class RegisterUserUseCase:
             hashed_password=HashedPassword(hashed),
             is_active=True,
         )
-        return self._repo.save(user)
+        result = self._repo.save(user)
+        logger.info("user registered: %s", email)
+        return result
 
 
 class LoginUseCase:
@@ -89,7 +95,9 @@ class UpdateUserUseCase:
             hashed = self._hasher.hash(password)
             user.change_password(HashedPassword(hashed))
 
-        return self._repo.save(user)
+        result = self._repo.save(user)
+        logger.info("user updated: %s", user_id)
+        return result
 
 
 class DeleteUserUseCase:
@@ -104,3 +112,4 @@ class DeleteUserUseCase:
             raise UserNotFoundError(user_id)
         user.deactivate()
         self._repo.save(user)
+        logger.info("user deactivated: %s", user_id)

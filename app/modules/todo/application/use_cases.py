@@ -1,9 +1,12 @@
+import logging
 import uuid
 
 from modules.todo.domain.entities import TodoItem, TodoList, TaskStatus
 from modules.todo.domain.exceptions import TodoItemNotFoundError, TodoListNotFoundError
 from modules.todo.domain.ports import TodoItemRepositoryPort, TodoListRepositoryPort
 from modules.todo.domain.value_objects import ListName
+
+logger = logging.getLogger(__name__)
 
 
 class CreateTodoListUseCase:
@@ -144,7 +147,9 @@ class CreateTaskUseCase:
             status=status,
             assigned_to=assigned_to,
         )
-        return self._repo.save(task)
+        result = self._repo.save(task)
+        logger.info("task created: %s (by=%s)", str(task.id), created_by)
+        return result
 
 
 class GetTaskUseCase:
@@ -195,7 +200,9 @@ class UpdateTaskUseCase:
             status=status,
             assigned_to=assigned_to,
         )
-        return self._repo.save(task)
+        result = self._repo.save(task)
+        logger.info("task updated: %s", task_id)
+        return result
 
 
 class DeleteTaskUseCase:
@@ -210,3 +217,4 @@ class DeleteTaskUseCase:
             raise TodoItemNotFoundError(task_id)
         task.verify_ownership(user_id)
         self._repo.delete(task_id)
+        logger.info("task deleted: %s", task_id)

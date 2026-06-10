@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from sqlalchemy.orm import Session
@@ -6,6 +7,8 @@ from modules.todo.domain.entities import TodoItem, TodoList, TaskStatus
 from modules.todo.domain.ports import TodoItemRepositoryPort, TodoListRepositoryPort
 from modules.todo.domain.value_objects import ListName
 from modules.todo.infrastructure.orm_models import TodoItemORM, TodoListORM
+
+logger = logging.getLogger(__name__)
 
 
 class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
@@ -64,21 +67,26 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
 
     # salva ou atualiza uma lista de tarefas no banco de dados
     def save(self, todo_list: TodoList) -> TodoList:
-        list_id = str(todo_list.id)
-        orm = self._list_to_orm(todo_list)
+        try:
+            list_id = str(todo_list.id)
+            orm = self._list_to_orm(todo_list)
 
-        # remove itens antigos e recria para manter consistencia do agregado
-        self.session.query(TodoItemORM).filter_by(todo_list_id=list_id).delete()
-        self.session.merge(orm)
+            # remove itens antigos e recria para manter consistencia do agregado
+            self.session.query(TodoItemORM).filter_by(todo_list_id=list_id).delete()
+            self.session.merge(orm)
 
-        # adiciona os itens atuais
-        item_orms = [self._item_to_orm(item, list_id) for item in todo_list.items]
-        self.session.add_all(item_orms)
-        self.session.commit()
+            # adiciona os itens atuais
+            item_orms = [self._item_to_orm(item, list_id) for item in todo_list.items]
+            self.session.add_all(item_orms)
+            self.session.commit()
 
-        # recarrega do banco para retornar o estado persistido
-        saved = self.session.get(TodoListORM, list_id)
-        return self._list_to_domain(saved)
+            # recarrega do banco para retornar o estado persistido
+            saved = self.session.get(TodoListORM, list_id)
+            return self._list_to_domain(saved)
+        except Exception:
+            logger.error("failed to save todo list %s", str(todo_list.id), exc_info=True)
+            self.session.rollback()
+            raise
 
     # busca uma lista de tarefas pelo ID
     def find_by_id(self, todo_list_id: str) -> TodoList | None:
@@ -133,11 +141,16 @@ class SQLAlchemyTodoItemRepository(TodoItemRepositoryPort):
         )
 
     def save(self, item: TodoItem) -> TodoItem:
-        orm = self._to_orm(item)
-        self.session.merge(orm)
-        self.session.commit()
-        saved = self.session.get(TodoItemORM, str(item.id))
-        return self._to_domain(saved)
+        try:
+            orm = self._to_orm(item)
+            self.session.merge(orm)
+            self.session.commit()
+            saved = self.session.get(TodoItemORM, str(item.id))
+            return self._to_domain(saved)
+        except Exception:
+            logger.error("failed to save task %s", str(item.id), exc_info=True)
+            self.session.rollback()
+            raise
 
     def find_by_id(self, item_id: str) -> TodoItem | None:
         orm = self.session.get(TodoItemORM, item_id)
