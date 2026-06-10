@@ -1,4 +1,4 @@
-from modules.auth.domain.exceptions import InvalidCredentialsError
+from modules.auth.domain.exceptions import InactiveUserError, InvalidCredentialsError
 from modules.auth.domain.ports import PasswordHasher, TokenProvider, UserRepositoryPort
 
 
@@ -20,6 +20,9 @@ class AuthenticationService:
         user = self._repo.find_by_email(email)
         if user is None:
             raise InvalidCredentialsError("Invalid email or password")
+
+        if not user.is_active:
+            raise InactiveUserError()
 
         if not self._hasher.verify(password, user.hashed_password.hash_passwd):
             raise InvalidCredentialsError("Invalid email or password")

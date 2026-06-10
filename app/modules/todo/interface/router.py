@@ -35,6 +35,7 @@ def list_lists(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """retorna todas as listas do usuario autenticado."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = GetUserTodoListsUseCase(repo=repo)
@@ -65,6 +66,7 @@ def create_list(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """cria uma nova lista de tarefas."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = CreateTodoListUseCase(repo=repo)
@@ -84,6 +86,7 @@ def delete_list(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """remove uma lista de tarefas."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = DeleteTodoListUseCase(repo=repo)
@@ -100,6 +103,7 @@ def add_item(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """adiciona um item a uma lista de tarefas."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = AddTodoItemUseCase(repo=repo)
@@ -137,6 +141,7 @@ def complete_item(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """marca um item como concluido."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = CompleteTodoItemUseCase(repo=repo)
@@ -174,6 +179,7 @@ def reopen_item(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """reabre um item que estava concluido."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = ReopenTodoItemUseCase(repo=repo)
@@ -212,6 +218,7 @@ def rename_item(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
+    # NOTE: for future use — not part of current requirements
     """renomeia o titulo de um item."""
     repo = SQLAlchemyTodoListRepository(db)
     uc = RenameItemUseCase(repo=repo)

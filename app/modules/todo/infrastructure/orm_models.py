@@ -34,15 +34,20 @@ class TodoItemORM(Base):
     id: Mapped[str] = mapped_column(
         String, primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    todo_list_id: Mapped[str] = mapped_column(
-        String, ForeignKey("todo_lists.id"), nullable=False
+    todo_list_id: Mapped[str | None] = mapped_column(
+        String, ForeignKey("todo_lists.id"), nullable=True
     )
     title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, default="")
+    status: Mapped[str] = mapped_column(String, default="pending")
+    assigned_to: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_by: Mapped[str] = mapped_column(String, nullable=False)
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(UTC)
     )
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    todo_list: Mapped["TodoListORM"] = relationship(
+    todo_list: Mapped["TodoListORM | None"] = relationship(
         "TodoListORM", back_populates="items"
     )

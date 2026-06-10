@@ -2,8 +2,8 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from modules.todo.domain.entities import TodoItem, TodoList
-from modules.todo.domain.ports import TodoListRepositoryPort
+from modules.todo.domain.entities import TodoItem, TodoList, TaskStatus
+from modules.todo.domain.ports import TodoItemRepositoryPort, TodoListRepositoryPort
 from modules.todo.domain.value_objects import ListName
 from modules.todo.infrastructure.orm_models import TodoItemORM, TodoListORM
 
@@ -20,7 +20,12 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
             id=str(item.id),
             todo_list_id=list_id,
             title=item.title,
+            description=item.description,
+            status=item.status.value,
+            assigned_to=item.assigned_to,
+            created_by=item.created_by,
             is_completed=item.completed,
+            updated_at=item.updated_at,
         )
 
     # converte um modelo ORM para um TodoItem de dominio
@@ -28,8 +33,13 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
         return TodoItem(
             id=uuid.UUID(orm.id),
             title=orm.title,
+            created_by=orm.created_by,
             completed=orm.is_completed,
+            description=orm.description,
+            status=TaskStatus(orm.status),
+            assigned_to=orm.assigned_to,
             created_at=orm.created_at,
+            updated_at=orm.updated_at,
         )
 
     # converte uma TodoList de dominio para o modelo ORM
@@ -87,4 +97,62 @@ class SQLAlchemyTodoListRepository(TodoListRepositoryPort):
     # remove uma lista de tarefas do banco de dados
     def delete(self, todo_list_id: str) -> None:
         self.session.query(TodoListORM).filter_by(id=todo_list_id).delete()
+        self.session.commit()
+
+
+class SQLAlchemyTodoItemRepository(TodoItemRepositoryPort):
+    """implementacao do repositorio de itens/tarefas usando SQLAlchemy."""
+
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+    def _to_orm(self, item: TodoItem) -> TodoItemORM:
+        return TodoItemORM(
+            id=str(item.id),
+            title=item.title,
+            description=item.description,
+            status=item.status.value,
+            assigned_to=item.assigned_to,
+            created_by=item.created_by,
+            is_completed=item.completed,
+            created_at=item.created_at,
+            updated_at=item.updated_at,
+        )
+
+    def _to_domain(self, orm: TodoItemORM) -> TodoItem:
+        return TodoItem(
+            id=uuid.UUID(orm.id),
+            title=orm.title,
+            created_by=orm.created_by,
+            completed=orm.is_completed,
+            description=orm.description,
+            status=TaskStatus(orm.status),
+            assigned_to=orm.assigned_to,
+            created_at=orm.created_at,
+            updated_at=orm.updated_at,
+        )
+
+    def save(self, item: TodoItem) -> TodoItem:
+        orm = self._to_orm(item)
+        self.session.merge(orm)
+        self.session.commit()
+        saved = self.session.get(TodoItemORM, str(item.id))
+        return self._to_domain(saved)
+
+    def find_by_id(self, item_id: str) -> TodoItem | None:
+        orm = self.session.get(TodoItemORM, item_id)
+        if orm is None:
+            return None
+        return self._to_domain(orm)
+
+    def find_by_assignee(self, user_id: str) -> list[TodoItem]:
+        orms = (
+            self.session.query(TodoItemORM)
+            .filter_by(assigned_to=user_id, todo_list_id=None)
+            .all()
+        )
+        return [self._to_domain(orm) for orm in orms]
+
+    def delete(self, item_id: str) -> None:
+        self.session.query(TodoItemORM).filter_by(id=item_id).delete()
         self.session.commit()

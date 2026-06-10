@@ -3,121 +3,152 @@ from typing import Optional
 import pytest
 
 from modules.todo.application.use_cases import (
-    AddTodoItemUseCase,
-    CompleteTodoItemUseCase,
-    CreateTodoListUseCase,
-    DeleteTodoListUseCase,
-    GetUserTodoListsUseCase,
+    CreateTaskUseCase,
+    DeleteTaskUseCase,
+    GetTaskUseCase,
+    ListTasksByAssigneeUseCase,
+    UpdateTaskUseCase,
 )
-from modules.todo.domain.entities import TodoList
-from modules.todo.domain.exceptions import AccessDeniedError
-from modules.todo.domain.ports import TodoListRepositoryPort
+from modules.todo.domain.entities import TaskStatus, TodoItem
+from modules.todo.domain.exceptions import AccessDeniedError, TodoItemNotFoundError
+from modules.todo.domain.ports import TodoItemRepositoryPort
 
 
-class InMemoryTodoRepo(TodoListRepositoryPort):
+class InMemoryTaskRepo(TodoItemRepositoryPort):
     def __init__(self):
-        self._store: dict[str, TodoList] = {}
+        self._store: dict[str, TodoItem] = {}
 
-    def save(self, todo_list: TodoList) -> TodoList:
-        self._store[str(todo_list.id)] = todo_list
-        return todo_list
+    def save(self, item: TodoItem) -> TodoItem:
+        self._store[str(item.id)] = item
+        return item
 
-    def find_by_id(self, todo_list_id: str) -> Optional[TodoList]:
-        return self._store.get(todo_list_id)
+    def find_by_id(self, item_id: str) -> Optional[TodoItem]:
+        return self._store.get(item_id)
 
-    def find_all_by_owner(self, owner_id: str) -> list[TodoList]:
-        return [tl for tl in self._store.values() if tl.owner_id == owner_id]
+    def find_by_assignee(self, user_id: str) -> list[TodoItem]:
+        return [t for t in self._store.values() if t.assigned_to == user_id]
 
-    def delete(self, todo_list_id: str) -> None:
-        self._store.pop(todo_list_id, None)
-
-
-class TestCreateTodoListUseCase:
-    def test_create_list(self):
-        repo = InMemoryTodoRepo()
-        uc = CreateTodoListUseCase(repo=repo)
-
-        result = uc.execute(name="My List", owner_id="user1")
-
-        assert result.name.value == "My List"
-        assert result.owner_id == "user1"
-        assert result.id is not None
+    def delete(self, item_id: str) -> None:
+        self._store.pop(item_id, None)
 
 
-class TestGetUserTodoListsUseCase:
-    def test_get_lists_returns_only_own_lists(self):
-        repo = InMemoryTodoRepo()
-        uc = CreateTodoListUseCase(repo=repo)
-        uc.execute(name="My List", owner_id="user1")
-        uc.execute(name="Other List", owner_id="user2")
+class TestCreateTaskUseCase:
+    def test_create_task_with_defaults(self):
+        repo = InMemoryTaskRepo()
+        uc = CreateTaskUseCase(repo=repo)
 
-        get_uc = GetUserTodoListsUseCase(repo=repo)
-        user1_lists = get_uc.execute(owner_id="user1")
+        result = uc.execute(title="Buy milk", created_by="user1")
 
-        assert len(user1_lists) == 1
-        assert user1_lists[0].name.value == "My List"
+        assert result.title == "Buy milk"
+        assert result.created_by == "user1"
+        assert result.status == TaskStatus.PENDING
+        assert result.description == ""
+        assert result.assigned_to is None
 
+    def test_create_task_with_all_fields(self):
+        repo = InMemoryTaskRepo()
+        uc = CreateTaskUseCase(repo=repo)
 
-class TestAddTodoItemUseCase:
-    def test_add_item_to_list(self):
-        repo = InMemoryTodoRepo()
-        create_uc = CreateTodoListUseCase(repo=repo)
-        todo_list = create_uc.execute(name="My List", owner_id="user1")
-
-        add_uc = AddTodoItemUseCase(repo=repo)
-        result = add_uc.execute(
-            list_id=str(todo_list.id), title="Buy milk", user_id="user1"
+        result = uc.execute(
+            title="Review PR",
+            created_by="user1",
+            description="Check the new feature",
+            status=TaskStatus.IN_PROGRESS,
+            assigned_to="user2",
         )
 
-        assert len(result.items) == 1
-        assert result.items[0].title == "Buy milk"
-
-    def test_add_item_with_wrong_owner_raises_error(self):
-        repo = InMemoryTodoRepo()
-        create_uc = CreateTodoListUseCase(repo=repo)
-        todo_list = create_uc.execute(name="My List", owner_id="user1")
-
-        add_uc = AddTodoItemUseCase(repo=repo)
-        with pytest.raises(AccessDeniedError):
-            add_uc.execute(list_id=str(todo_list.id), title="Buy milk", user_id="user2")
+        assert result.title == "Review PR"
+        assert result.description == "Check the new feature"
+        assert result.status == TaskStatus.IN_PROGRESS
+        assert result.assigned_to == "user2"
 
 
-class TestCompleteTodoItemUseCase:
-    def test_complete_item(self):
-        repo = InMemoryTodoRepo()
-        create_uc = CreateTodoListUseCase(repo=repo)
-        todo_list = create_uc.execute(name="My List", owner_id="user1")
-        add_uc = AddTodoItemUseCase(repo=repo)
-        todo_list = add_uc.execute(
-            list_id=str(todo_list.id), title="Buy milk", user_id="user1"
+class TestGetTaskUseCase:
+    def test_get_task_returns_task(self):
+        repo = InMemoryTaskRepo()
+        create_uc = CreateTaskUseCase(repo=repo)
+        task = create_uc.execute(title="Read book", created_by="user1")
+
+        get_uc = GetTaskUseCase(repo=repo)
+        result = get_uc.execute(task_id=str(task.id))
+
+        assert result.title == "Read book"
+
+    def test_get_task_not_found_raises_error(self):
+        repo = InMemoryTaskRepo()
+        uc = GetTaskUseCase(repo=repo)
+
+        with pytest.raises(TodoItemNotFoundError):
+            uc.execute(task_id="nonexistent")
+
+
+class TestListTasksByAssigneeUseCase:
+    def test_list_tasks_by_assignee(self):
+        repo = InMemoryTaskRepo()
+        create_uc = CreateTaskUseCase(repo=repo)
+        create_uc.execute(
+            title="Task 1", created_by="user1", assigned_to="user2"
+        )
+        create_uc.execute(
+            title="Task 2", created_by="user1", assigned_to="user2"
+        )
+        create_uc.execute(
+            title="Task 3", created_by="user1", assigned_to="user3"
         )
 
-        complete_uc = CompleteTodoItemUseCase(repo=repo)
-        result = complete_uc.execute(
-            list_id=str(todo_list.id),
-            item_id=todo_list.items[0].id,
+        uc = ListTasksByAssigneeUseCase(repo=repo)
+        results = uc.execute(user_id="user2")
+
+        assert len(results) == 2
+        titles = [t.title for t in results]
+        assert "Task 1" in titles
+        assert "Task 2" in titles
+
+
+class TestUpdateTaskUseCase:
+    def test_update_task_title_and_status(self):
+        repo = InMemoryTaskRepo()
+        create_uc = CreateTaskUseCase(repo=repo)
+        task = create_uc.execute(title="Old title", created_by="user1")
+
+        uc = UpdateTaskUseCase(repo=repo)
+        result = uc.execute(
+            task_id=str(task.id),
             user_id="user1",
+            title="New title",
+            status=TaskStatus.DONE,
         )
 
-        assert result.items[0].completed is True
+        assert result.title == "New title"
+        assert result.status == TaskStatus.DONE
+        assert result.completed is True
 
+    def test_update_task_by_non_owner_raises_error(self):
+        repo = InMemoryTaskRepo()
+        create_uc = CreateTaskUseCase(repo=repo)
+        task = create_uc.execute(title="My task", created_by="user1")
 
-class TestDeleteTodoListUseCase:
-    def test_delete_list(self):
-        repo = InMemoryTodoRepo()
-        create_uc = CreateTodoListUseCase(repo=repo)
-        todo_list = create_uc.execute(name="My List", owner_id="user1")
-
-        delete_uc = DeleteTodoListUseCase(repo=repo)
-        delete_uc.execute(list_id=str(todo_list.id), user_id="user1")
-
-        assert repo.find_by_id(str(todo_list.id)) is None
-
-    def test_delete_list_with_wrong_owner_raises_error(self):
-        repo = InMemoryTodoRepo()
-        create_uc = CreateTodoListUseCase(repo=repo)
-        todo_list = create_uc.execute(name="My List", owner_id="user1")
-
-        delete_uc = DeleteTodoListUseCase(repo=repo)
+        uc = UpdateTaskUseCase(repo=repo)
         with pytest.raises(AccessDeniedError):
-            delete_uc.execute(list_id=str(todo_list.id), user_id="user2")
+            uc.execute(task_id=str(task.id), user_id="user2", title="Hijacked")
+
+
+class TestDeleteTaskUseCase:
+    def test_delete_task(self):
+        repo = InMemoryTaskRepo()
+        create_uc = CreateTaskUseCase(repo=repo)
+        task = create_uc.execute(title="To delete", created_by="user1")
+
+        uc = DeleteTaskUseCase(repo=repo)
+        uc.execute(task_id=str(task.id), user_id="user1")
+
+        assert repo.find_by_id(str(task.id)) is None
+
+    def test_delete_task_by_non_owner_raises_error(self):
+        repo = InMemoryTaskRepo()
+        create_uc = CreateTaskUseCase(repo=repo)
+        task = create_uc.execute(title="My task", created_by="user1")
+
+        uc = DeleteTaskUseCase(repo=repo)
+        with pytest.raises(AccessDeniedError):
+            uc.execute(task_id=str(task.id), user_id="user2")

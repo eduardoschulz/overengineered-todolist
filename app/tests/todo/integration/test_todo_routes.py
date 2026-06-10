@@ -1,4 +1,4 @@
-"""testes de integracao para os endpoints de tarefas."""
+"""testes de integracao para os endpoints de tarefas (/tasks)."""
 
 
 def register_and_login(client, email: str, password: str) -> str:
@@ -19,129 +19,163 @@ def auth_header(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
 
 
-class TestCreateList:
-    def test_create_list_returns_201(self, client):
-        token = register_and_login(client, "list@test.com", "secret123")
+class TestCreateTask:
+    def test_create_task_returns_201(self, client):
+        token = register_and_login(client, "create@test.com", "secret123")
         resp = client.post(
-            "/lists/",
-            json={"name": "My Tasks"},
+            "/tasks/",
+            json={"title": "Buy groceries", "description": "Milk, bread, eggs"},
             headers=auth_header(token),
         )
         assert resp.status_code == 201
         data = resp.json()
-        assert data["name"] == "My Tasks"
-        assert data["owner_id"] is not None
+        assert data["title"] == "Buy groceries"
+        assert data["description"] == "Milk, bread, eggs"
+        assert data["status"] == "pending"
+        assert data["created_by"] is not None
         assert "id" in data
-        assert "created_at" in data
 
-
-class TestGetLists:
-    def test_get_lists_returns_only_my_lists(self, client):
-        token_a = register_and_login(client, "userA@test.com", "secret123")
-        token_b = register_and_login(client, "userB@test.com", "secret456")
-
-        client.post(
-            "/lists/",
-            json={"name": "A's List"},
-            headers=auth_header(token_a),
-        )
-        client.post(
-            "/lists/",
-            json={"name": "B's List"},
-            headers=auth_header(token_b),
-        )
-
-        resp = client.get("/lists/", headers=auth_header(token_a))
-        assert resp.status_code == 200
-        data = resp.json()
-        assert len(data) == 1
-        assert data[0]["name"] == "A's List"
-
-
-class TestAddItem:
-    def test_add_item_returns_201(self, client):
-        token = register_and_login(client, "additem@test.com", "secret123")
-        create_resp = client.post(
-            "/lists/",
-            json={"name": "Groceries"},
-            headers=auth_header(token),
-        )
-        list_id = create_resp.json()["id"]
-
+    def test_create_task_with_assignee(self, client):
+        token = register_and_login(client, "assigner@test.com", "secret123")
         resp = client.post(
-            f"/lists/{list_id}/items",
-            json={"title": "Buy milk"},
+            "/tasks/",
+            json={
+                "title": "Review PR",
+                "assigned_to": "user-456",
+                "status": "in_progress",
+            },
             headers=auth_header(token),
         )
         assert resp.status_code == 201
         data = resp.json()
-        assert len(data["items"]) == 1
-        assert data["items"][0]["title"] == "Buy milk"
-        assert data["items"][0]["is_completed"] is False
+        assert data["assigned_to"] == "user-456"
+        assert data["status"] == "in_progress"
 
 
-class TestCompleteItem:
-    def test_complete_item_returns_200(self, client):
-        token = register_and_login(client, "complete@test.com", "secret123")
+class TestGetTask:
+    def test_get_task_returns_200(self, client):
+        token = register_and_login(client, "get@test.com", "secret123")
         create_resp = client.post(
-            "/lists/",
-            json={"name": "Tasks"},
+            "/tasks/",
+            json={"title": "Read book"},
             headers=auth_header(token),
         )
-        list_id = create_resp.json()["id"]
-        add_resp = client.post(
-            f"/lists/{list_id}/items",
-            json={"title": "Do laundry"},
-            headers=auth_header(token),
-        )
-        item_id = add_resp.json()["items"][0]["id"]
+        task_id = create_resp.json()["id"]
 
-        resp = client.patch(
-            f"/lists/{list_id}/items/{item_id}/complete",
+        resp = client.get(f"/tasks/{task_id}", headers=auth_header(token))
+        assert resp.status_code == 200
+        assert resp.json()["title"] == "Read book"
+
+    def test_get_task_404(self, client):
+        token = register_and_login(client, "get404@test.com", "secret123")
+        resp = client.get(
+            "/tasks/00000000-0000-0000-0000-000000000000",
+            headers=auth_header(token),
+        )
+        assert resp.status_code == 404
+
+
+class TestListTasksByAssignee:
+    def test_list_tasks_by_assignee(self, client):
+        token_a = register_and_login(client, "owner@test.com", "secret123")
+        token_b = register_and_login(client, "assignee@test.com", "secret456")
+
+        client.post(
+            "/tasks/",
+            json={"title": "Task for B", "assigned_to": "assignee@test.com"},
+            headers=auth_header(token_a),
+        )
+        client.post(
+            "/tasks/",
+            json={"title": "Own task", "assigned_to": "owner@test.com"},
+            headers=auth_header(token_a),
+        )
+
+        resp = client.get(
+            "/tasks/",
+            params={"assignedTo": "assignee@test.com"},
+            headers=auth_header(token_a),
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert len(data) >= 1
+        titles = [t["title"] for t in data]
+        assert "Task for B" in titles
+
+    def test_list_tasks_empty_when_no_assignee(self, client):
+        token = register_and_login(client, "empty@test.com", "secret123")
+        resp = client.get("/tasks/", headers=auth_header(token))
+        assert resp.status_code == 200
+        assert resp.json() == []
+
+
+class TestUpdateTask:
+    def test_update_task_returns_200(self, client):
+        token = register_and_login(client, "update@test.com", "secret123")
+        create_resp = client.post(
+            "/tasks/",
+            json={"title": "Old title"},
+            headers=auth_header(token),
+        )
+        task_id = create_resp.json()["id"]
+
+        resp = client.put(
+            f"/tasks/{task_id}",
+            json={"title": "New title", "status": "done"},
             headers=auth_header(token),
         )
         assert resp.status_code == 200
         data = resp.json()
-        assert data["items"][0]["is_completed"] is True
+        assert data["title"] == "New title"
+        assert data["status"] == "done"
+        assert data["is_completed"] is True
 
-
-class TestDeleteList:
-    def test_delete_list_returns_204(self, client):
-        token = register_and_login(client, "delete@test.com", "secret123")
+    def test_update_task_by_non_owner_returns_403(self, client):
+        token_a = register_and_login(client, "owner2@test.com", "secret123")
+        token_b = register_and_login(client, "intruder2@test.com", "secret456")
         create_resp = client.post(
-            "/lists/",
-            json={"name": "To Delete"},
-            headers=auth_header(token),
-        )
-        list_id = create_resp.json()["id"]
-
-        resp = client.delete(
-            f"/lists/{list_id}",
-            headers=auth_header(token),
-        )
-        assert resp.status_code == 204
-
-
-class TestAccessControl:
-    def test_cannot_access_another_users_list(self, client):
-        token_a = register_and_login(client, "owner@test.com", "secret123")
-        token_b = register_and_login(client, "intruder@test.com", "secret456")
-
-        create_resp = client.post(
-            "/lists/",
-            json={"name": "Owner List"},
+            "/tasks/",
+            json={"title": "Owner task"},
             headers=auth_header(token_a),
         )
-        list_id = create_resp.json()["id"]
+        task_id = create_resp.json()["id"]
 
-        resp = client.delete(
-            f"/lists/{list_id}",
+        resp = client.put(
+            f"/tasks/{task_id}",
+            json={"title": "Hijacked"},
             headers=auth_header(token_b),
         )
         assert resp.status_code == 403
 
 
+class TestDeleteTask:
+    def test_delete_task_returns_204(self, client):
+        token = register_and_login(client, "del@test.com", "secret123")
+        create_resp = client.post(
+            "/tasks/",
+            json={"title": "To delete"},
+            headers=auth_header(token),
+        )
+        task_id = create_resp.json()["id"]
+
+        resp = client.delete(f"/tasks/{task_id}", headers=auth_header(token))
+        assert resp.status_code == 204
+
+    def test_delete_by_non_owner_returns_403(self, client):
+        token_a = register_and_login(client, "owner3@test.com", "secret123")
+        token_b = register_and_login(client, "intruder3@test.com", "secret456")
+        create_resp = client.post(
+            "/tasks/",
+            json={"title": "Owner task"},
+            headers=auth_header(token_a),
+        )
+        task_id = create_resp.json()["id"]
+
+        resp = client.delete(f"/tasks/{task_id}", headers=auth_header(token_b))
+        assert resp.status_code == 403
+
+
 class TestUnauthenticated:
     def test_unauthenticated_returns_401(self, client):
-        resp = client.get("/lists/")
+        resp = client.get("/tasks/", params={"assignedTo": "someone"})
         assert resp.status_code == 401

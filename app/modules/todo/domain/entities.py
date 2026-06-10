@@ -1,6 +1,7 @@
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from enum import Enum
 
 from .exceptions import (
     AccessDeniedError,
@@ -12,27 +13,70 @@ from .exceptions import (
 from .value_objects import ListName
 
 
+class TaskStatus(Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+
+
 @dataclass(kw_only=True)
 class TodoItem:
     title: str
-    completed: bool = False
+    created_by: str
     id: uuid.UUID = field(default_factory=uuid.uuid4)
+    completed: bool = False
+    description: str = ""
+    status: TaskStatus = TaskStatus.PENDING
+    assigned_to: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime | None = None
 
     def complete(self):
         if self.completed:
             raise AlreadyCompletedError()
         self.completed = True
+        self.status = TaskStatus.DONE
+        self.updated_at = datetime.now(UTC)
 
     def reopen(self):
         if not self.completed:
             raise NotCompletedError()
         self.completed = False
+        self.status = TaskStatus.PENDING
+        self.updated_at = datetime.now(UTC)
 
     def rename(self, new_title: str):
         if not new_title.strip():
             raise EmptyTitleError()
         self.title = new_title
+        self.updated_at = datetime.now(UTC)
+
+    def update(
+        self,
+        title: str | None = None,
+        description: str | None = None,
+        status: TaskStatus | None = None,
+        assigned_to: str | None = None,
+    ):
+        if title is not None:
+            if not title.strip():
+                raise EmptyTitleError()
+            self.title = title
+        if description is not None:
+            self.description = description
+        if status is not None:
+            self.status = status
+            if status == TaskStatus.DONE:
+                self.completed = True
+            else:
+                self.completed = False
+        if assigned_to is not None:
+            self.assigned_to = assigned_to
+        self.updated_at = datetime.now(UTC)
+
+    def verify_ownership(self, user_id: str):
+        if self.created_by != user_id:
+            raise AccessDeniedError()
 
 
 @dataclass(kw_only=True)
@@ -52,7 +96,7 @@ class TodoList:
     def add_item(self, title: str) -> TodoItem:
         if not title.strip():
             raise EmptyTitleError()
-        item = TodoItem(title=title)
+        item = TodoItem(title=title, created_by=self.owner_id)
         self.items.append(item)
         return item
 
