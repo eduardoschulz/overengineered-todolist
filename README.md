@@ -1,10 +1,9 @@
 # overengineered-todolist
-An overengineered todo list
+Uma lista de tarefas exageradamente engenheirada.
 
+# Guia de Desenvolvimento
 
- # Development Guide
-
-## Docker Compose (recommended)
+## Docker Compose (recomendado)
 ```bash
 cp .env.example .env
 docker compose up -d --build
@@ -31,10 +30,9 @@ uvicorn main:app --reload
 ```
 Usa SQLite por padrão (definido em `.env`).
 
-# Git Guidelines
-### Commit Messages:
+# Guia de Git
+### Mensagens de Commit:
 https://www.conventionalcommits.org/en/v1.0.0/#examples
 
-### Code Submitions and Pull Requests
+### Envio de Código e Pull Requests
 https://trunkbaseddevelopment.com/
-
