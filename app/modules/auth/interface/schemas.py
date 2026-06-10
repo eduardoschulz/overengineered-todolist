@@ -24,3 +24,8 @@ class UserResponse(BaseModel):
     email: EmailStr
     is_active: bool
     created_at: datetime
+
+
+class UpdateUserRequest(BaseModel):
+    email: EmailStr | None = None
+    password: str | None = None

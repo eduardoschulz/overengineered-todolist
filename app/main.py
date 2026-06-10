@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from modules.auth.interface.router import router as auth_router
+from modules.auth.interface.users_router import users_router
 from modules.todo.interface.router import router as todo_router
 from modules.todo.interface.task_router import tasks_router
 from shared.exceptions import AppError
@@ -28,6 +29,7 @@ def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
 
 
 app.include_router(auth_router)
+app.include_router(users_router)
 app.include_router(todo_router)
 app.include_router(tasks_router)
 

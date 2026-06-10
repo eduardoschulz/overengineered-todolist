@@ -2,6 +2,7 @@ from modules.auth.domain.entities import User
 from modules.auth.domain.exceptions import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
+    UserNotFoundError,
 )
 from modules.auth.domain.ports import PasswordHasher, TokenProvider, UserRepositoryPort
 from modules.auth.domain.value_objects import EmailAddress, HashedPassword
@@ -49,3 +50,57 @@ class LoginUseCase:
             raise InvalidCredentialsError("Invalid email or password")
 
         return self._token_provider.generate({"sub": str(user.id)})
+
+
+class GetUserUseCase:
+    """busca um usuario por id."""
+
+    def __init__(self, repo: UserRepositoryPort) -> None:
+        self._repo = repo
+
+    def execute(self, user_id: str) -> User:
+        user = self._repo.find_by_id(user_id)
+        if user is None:
+            raise UserNotFoundError(user_id)
+        return user
+
+
+class UpdateUserUseCase:
+    """atualiza email e/ou senha de um usuario."""
+
+    def __init__(self, repo: UserRepositoryPort, hasher: PasswordHasher) -> None:
+        self._repo = repo
+        self._hasher = hasher
+
+    def execute(
+        self, user_id: str, email: str | None = None, password: str | None = None
+    ) -> User:
+        user = self._repo.find_by_id(user_id)
+        if user is None:
+            raise UserNotFoundError(user_id)
+
+        if email is not None:
+            existing = self._repo.find_by_email(email)
+            if existing and str(existing.id) != user_id:
+                raise EmailAlreadyExistsError(f"User with email {email} already exists")
+            user.change_email(EmailAddress(email))
+
+        if password is not None:
+            hashed = self._hasher.hash(password)
+            user.change_password(HashedPassword(hashed))
+
+        return self._repo.save(user)
+
+
+class DeleteUserUseCase:
+    """desativa um usuario (soft delete)."""
+
+    def __init__(self, repo: UserRepositoryPort) -> None:
+        self._repo = repo
+
+    def execute(self, user_id: str) -> None:
+        user = self._repo.find_by_id(user_id)
+        if user is None:
+            raise UserNotFoundError(user_id)
+        user.deactivate()
+        self._repo.save(user)
