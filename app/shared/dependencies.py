@@ -24,4 +24,12 @@ def get_current_user_id(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
+    from shared.token_blocklist import token_blocklist
+
+    if token_blocklist.is_blocked(credentials.credentials):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been invalidated",
+        )
+
     return UUID(payload["sub"])

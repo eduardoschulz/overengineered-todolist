@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
-from modules.auth.application.use_cases import LoginUseCase, RegisterUserUseCase
+from modules.auth.application.use_cases import (
+    LoginUseCase,
+    LogoutUseCase,
+    RegisterUserUseCase,
+)
 from modules.auth.domain.exceptions import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
@@ -16,6 +21,7 @@ from modules.auth.interface.schemas import (
     UserResponse,
 )
 from shared.database import get_db
+from shared.dependencies import get_current_user_id, security
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -52,3 +58,12 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     return TokenResponse(access_token=token)
+
+
+@router.post("/logout", status_code=204)
+def logout(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    _user_id: str = Depends(get_current_user_id),
+):
+    use_case = LogoutUseCase()
+    use_case.execute(token=credentials.credentials)

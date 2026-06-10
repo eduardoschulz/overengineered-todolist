@@ -100,6 +100,17 @@ class UpdateUserUseCase:
         return result
 
 
+class LogoutUseCase:
+    def __init__(self) -> None:
+        from shared.token_blocklist import token_blocklist
+
+        self._token_blocklist = token_blocklist
+
+    def execute(self, token: str) -> None:
+        self._token_blocklist.add(token)
+        logger.info("user logged out")
+
+
 class DeleteUserUseCase:
     """desativa um usuario (soft delete)."""
 
