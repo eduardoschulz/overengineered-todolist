@@ -1,0 +1,60 @@
+...............................................................          [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.14.5-final-0 ________________
+
+Name                                                Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------------
+app/main.py                                            53      9    83%   34-35, 46-53, 59, 70, 80-86
+app/modules/auth/__init__.py                            0      0   100%
+app/modules/auth/application/__init__.py                0      0   100%
+app/modules/auth/application/use_cases.py              74     32    57%   65, 68-71, 78-79, 84-100, 105-107, 110-111, 118, 121-126
+app/modules/auth/domain/__init__.py                     0      0   100%
+app/modules/auth/domain/authentication_service.py      16      1    94%   22
+app/modules/auth/domain/entities.py                    18      5    72%   17, 21, 24, 27, 30
+app/modules/auth/domain/exceptions.py                  20      4    80%   6-7, 12-13
+app/modules/auth/domain/ports.py                       26      7    73%   9, 13, 17, 23, 27, 33, 37
+app/modules/auth/domain/value_objects.py                8      0   100%
+app/modules/auth/infrastructure/__init__.py             0      0   100%
+app/modules/auth/infrastructure/bcrypt_hasher.py        7      0   100%
+app/modules/auth/infrastructure/jwt_provider.py        18      4    78%   24-27
+app/modules/auth/infrastructure/orm_models.py          11      0   100%
+app/modules/auth/infrastructure/repositories.py        35      8    77%   45-48, 59-62
+app/modules/auth/interface/router.py                   37      2    95%   68-69
+app/modules/auth/interface/schemas.py                  11      0   100%
+app/modules/auth/interface/users_router.py             50     31    38%   35-42, 57-63, 79-92, 107-112
+app/modules/todo/__init__.py                            0      0   100%
+app/modules/todo/application/__init__.py                0      0   100%
+app/modules/todo/application/use_cases.py             125     51    59%   16, 19-20, 27, 30, 37, 40-43, 46-49, 56, 59-62, 65-68, 75, 78-81, 84-87, 94, 99-102, 105-108, 115, 118-120, 123-126, 195, 217
+app/modules/todo/domain/__init__.py                     0      0   100%
+app/modules/todo/domain/entities.py                    85      4    95%   63, 66, 72, 74
+app/modules/todo/domain/exceptions.py                  16      2    88%   3-4
+app/modules/todo/domain/ports.py                       28      8    71%   11, 15, 19, 23, 29, 33, 37, 41
+app/modules/todo/domain/value_objects.py                8      2    75%   10, 12
+app/modules/todo/infrastructure/__init__.py             0      0   100%
+app/modules/todo/infrastructure/orm_models.py          25      0   100%
+app/modules/todo/infrastructure/repositories.py        75     32    57%   18, 22, 36, 50, 59-60, 70-89, 93-96, 100-103, 107-108, 150-153
+app/modules/todo/interface/__init__.py                  0      0   100%
+app/modules/todo/interface/router.py                   74     50    32%   40-43, 71-74, 91-96, 108-118, 146-156, 184-194, 223-236
+app/modules/todo/interface/schemas.py                  18      0   100%
+app/modules/todo/interface/task_router.py              63      8    87%   48-51, 140, 143-144, 170
+app/shared/__init__.py                                  0      0   100%
+app/shared/base_model.py                                3      0   100%
+app/shared/config.py                                    8      0   100%
+app/shared/database.py                                 15      0   100%
+app/shared/dependencies.py                             18      5    72%   18-23, 30
+app/shared/exceptions.py                               22      6    73%   9, 14, 19, 24, 29, 34
+app/shared/token_blocklist.py                           8      1    88%   8
+app/tests/auth/integration/test_auth_routes.py         27      0   100%
+app/tests/auth/unit/test_auth_service.py               56      8    86%   13, 24, 32-33, 39-42
+app/tests/auth/unit/test_use_cases.py                  84      5    94%   41-44, 66
+app/tests/auth/unit/test_value_objects.py              37      0   100%
+app/tests/conftest.py                                  26      0   100%
+app/tests/test_database.py                             14      0   100%
+app/tests/test_health.py                                4      0   100%
+app/tests/test_main.py                                 15      0   100%
+app/tests/todo/integration/test_todo_routes.py         89      0   100%
+app/tests/todo/unit/test_todo_aggregate.py             65      0   100%
+app/tests/todo/unit/test_todo_use_cases.py             94      0   100%
+---------------------------------------------------------------------------------
+TOTAL                                                1486    285    81%
+63 passed in 5.85s

@@ -1,9 +1,7 @@
 # overengineered-todolist
 Uma lista de tarefas exageradamente engenheirada.
 
-## Cobertura de Testes
-<iframe src="htmlcov/index.html" width="100%" height="600px" style="border: none;"></iframe>
-> ⚠️ O iframe só renderiza em previews locais (VS Code, Typora, MkDocs). GitHub/GitLab removem iframes por segurança.
+[📊 Relatório de cobertura de testes](coverage.txt)
 
 # Guia de Desenvolvimento
 
